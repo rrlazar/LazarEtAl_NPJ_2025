@@ -71,7 +71,7 @@ calculate_midpoint <- function(time1, time2) {
 #load complete merged dataset
 #load(file="./01_redcap_data/Covar_data.rda")
 
-load(file = here("Datasets", "Covar_data.rda"))
+load(file = here("Datasets/Stats", "Covar_data.rda"))
 
 
 
