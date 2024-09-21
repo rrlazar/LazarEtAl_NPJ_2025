@@ -12,12 +12,12 @@ Code and data for the Lazar et al 2024 publication
 
 - arvo_DPG		= Dataset containing the Distal-proximal skin temperature gradient (DPG) during the AEE light intervention - used for post-hoc 				hypothesis testing.
 - arvo_KSS		= Dataset containing the Subjective sleepiness/alertness ratings (kss) assessed with the Karolinska Sleepiness Scale during the 			AEE light intervention - used for post-hoc hypothesis testing.
-- arvo_PVT_stat		= Dataset containing the vigilance performance data (value) assessed with the Psychomotor Vigilance Task (PVT) during the 				afternoon-early evening (AEE) light intervention - used for post-hoc hypothesis testing.
+- arvo_PVT_stat		= Dataset containing the vigilance performance data (value) assessed with the auditory Psychomotor Vigilance Task (PVT) during the 			AEE light intervention - used for post-hoc hypothesis testing.
 - Covar_data		= Demographic data for the participants, also including the data used as covariates.
 
 - eve_DPG		= Dataset containing the Distal-proximal skin temperature gradient (DPG) during the later evening light - used for a-priori 				hypothesis testing.
 - eve_KSS		= Dataset containing the Subjective sleepiness/alertness ratings (kss) assessed with the Karolinska Sleepiness Scale (KSS) during 			the later evening light - used for a-priori hypothesis testing.
-- eve_PVT_stat		= Dataset containing the Vigilance performance data (value) assessed with the Psychomotor Vigilance Task (PVT) during the later 			evening light - used for a-priori hypothesis testing.
+- eve_PVT_stat		= Dataset containing the Vigilance performance data (value) assessed with the auditory Psychomotor Vigilance Task (PVT) during the 			later evening light - used for a-priori hypothesis testing.
 - Mel_summary		= Dataset containing the primary outcome "Evening salivary melatonin AUC" (auc_mel_eve)  - used for a-priori hypothesis 				testing; and morning melatonin AUC (auc_mel_mor) - used for an exploratory analysis (see Supplementary information). 	
 - merged_mel_timing_HS	= Dataset containing the melatonin onsets (HS_time).
 
