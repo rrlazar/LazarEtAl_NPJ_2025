@@ -107,7 +107,7 @@ gg_light <-function(dataset) {
 
 #Condition Spectra  -------------------------------------------------
 
-spectra <-  read.csv(file = here("Plotting/light data", "Main_Table_Cond_vert_spectra_luox.csv"))%>%
+spectra <-  read.csv(file = here("Plotting/light data", "vert_spectra.csv"))%>%
   rename(Wavelength= Wavelength..nm.)
 
 spectra$Wavelength[which.max(spectra$Bright)]
@@ -144,7 +144,7 @@ ggsave(spectra_plot, file = "./Plotting/Output/spectra_plot.svg",
 
 
 #BlueBlocker transmission  -------------------------------------------------
-bb <-  read.csv(file = here("Plotting/light data", "AugenLichtSchutz_redXD.csv"))
+bb <-  read.csv(file = here("Plotting/light data", "bbspectacles.csv"))
 
 bb <- round(bb,0)
 

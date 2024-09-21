@@ -6,6 +6,7 @@ Code and data for the Lazar et al 2024 publication
 - arvo_DPG		= Dataset containing the Distal-proximal skin temperature gradient (DPG) during the AEE light intervention - used for post-hoc 				hypothesis testing.
 - arvo_KSS		= Dataset containing the Subjective sleepiness/alertness ratings (kss) assessed with the Karolinska Sleepiness Scale during the 			AEE light intervention - used for post-hoc hypothesis testing.
 - arvo_PVT_stat		= Dataset containing the vigilance performance data (value) assessed with the Psychomotor Vigilance Task (PVT) during the 				afternoon-early evening (AEE) light intervention - used for post-hoc hypothesis testing.
+- bbspectacles		= Dataset containing the transmission of short-wavelength filter glasses applied out of the laboratory.
 - Covar_data		= Demographic data for the participants, also including the data used as covariates.
 
 - eve_DPG		= Dataset containing the Distal-proximal skin temperature gradient (DPG) during the later evening light - used for a-priori 				hypothesis testing.
@@ -13,6 +14,8 @@ Code and data for the Lazar et al 2024 publication
 - eve_PVT_stat		= Dataset containing the Vigilance performance data (value) assessed with the Psychomotor Vigilance Task (PVT) during the later 			evening light - used for a-priori hypothesis testing.
 - Mel_summary		= Dataset containing the primary outcome "Evening salivary melatonin AUC" (auc_mel_eve)  - used for a-priori hypothesis 				testing; and morning melatonin AUC (auc_mel_mor) - used for an exploratory analysis (see Supplementary information). 	
 - merged_mel_timing_HS	= Dataset containing the melatonin onsets (HS_time).
+
+- vert_spectra		= Dataset containing the spectral irradiance distribution of the 3 AEE light exposure interventions during task-free periods 				(curtains closed). The vertical light measurements were taken with a spectroradiometer placed at the eye level of the seated 				participants (115 cm from the floor, 85 cm from the overhead light source, 80 cm from the white curtain, Spectraval 1501, JETI 				Technische Instrumente GmbH, Jena, Germany, last calibration: 07.03.2023). 
 
 
 
