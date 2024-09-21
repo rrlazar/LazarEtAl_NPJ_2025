@@ -1,12 +1,18 @@
 # LazarEtAl_NatHumBehav_2024
 Code and data for the Lazar et al 2024 publication
 
-## Dataset names:
+
+## Light dataset names
+
+- bbspectacles		= Dataset containing the transmission of short-wavelength filter glasses ( applied out of the laboratory.
+
+- vert_spectra		= Dataset containing the spectral irradiance distribution per AAE light interventions (Wavelength, Dim, Moderate Bright) during 			task-free periods (curtains closed). The vertical light measurements were taken with a spectroradiometer placed at the eye level 			of the seated participants (115 cm from the floor, 85 cm from the overhead light source, 80 cm from the white curtain, Spectraval 			1501, JETI Technische Instrumente GmbH, Jena, Germany, last calibration: 07.03.2023). 
+
+## Statistics Dataset names:
 
 - arvo_DPG		= Dataset containing the Distal-proximal skin temperature gradient (DPG) during the AEE light intervention - used for post-hoc 				hypothesis testing.
 - arvo_KSS		= Dataset containing the Subjective sleepiness/alertness ratings (kss) assessed with the Karolinska Sleepiness Scale during the 			AEE light intervention - used for post-hoc hypothesis testing.
 - arvo_PVT_stat		= Dataset containing the vigilance performance data (value) assessed with the Psychomotor Vigilance Task (PVT) during the 				afternoon-early evening (AEE) light intervention - used for post-hoc hypothesis testing.
-- bbspectacles		= Dataset containing the transmission of short-wavelength filter glasses applied out of the laboratory.
 - Covar_data		= Demographic data for the participants, also including the data used as covariates.
 
 - eve_DPG		= Dataset containing the Distal-proximal skin temperature gradient (DPG) during the later evening light - used for a-priori 				hypothesis testing.
@@ -15,11 +21,8 @@ Code and data for the Lazar et al 2024 publication
 - Mel_summary		= Dataset containing the primary outcome "Evening salivary melatonin AUC" (auc_mel_eve)  - used for a-priori hypothesis 				testing; and morning melatonin AUC (auc_mel_mor) - used for an exploratory analysis (see Supplementary information). 	
 - merged_mel_timing_HS	= Dataset containing the melatonin onsets (HS_time).
 
-- vert_spectra		= Dataset containing the spectral irradiance distribution of the 3 AEE light exposure interventions during task-free periods 				(curtains closed). The vertical light measurements were taken with a spectroradiometer placed at the eye level of the seated 				participants (115 cm from the floor, 85 cm from the overhead light source, 80 cm from the white curtain, Spectraval 1501, JETI 				Technische Instrumente GmbH, Jena, Germany, last calibration: 07.03.2023). 
 
-
-
-## Variable names:
+## Statistics dataset variable names:
 
 - auc_mel_eve 		= Evening melatonin AUC (pg/ml/h) [numeric]
 - auc_mel_mor 		= Next morning melatonin AUC (pg/ml/h) - based on 2 morning samples each [numeric]
@@ -46,6 +49,7 @@ Code and data for the Lazar et al 2024 publication
 - pub_stage 		= Self-report based pubertal stage [factor]
 - record_id 		= Participant identification number [factor]
 - Value			= Temperature value of single iButtons (including room temperature) [numeric]
+- Wavelength		= 
 
 
 ###  PVT variable names

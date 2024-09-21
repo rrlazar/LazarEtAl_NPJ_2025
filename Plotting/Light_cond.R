@@ -46,10 +46,6 @@ pacman::p_load(
 )
 
 
-
-
-
-
 #source plotting functions--------------------------------------------------
 ar<- 1/1
 shape_datapoints = 21
