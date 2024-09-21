@@ -1,0 +1,649 @@
+---
+title: "LMM analyses assumption check - TeenLight"
+author: "R Lazar"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+format:
+  html:
+    embed-resources: false
+    code-fold: true
+    code-summary: "Show the code"
+editor: source
+warning: false
+editor_options:
+  chunk_output_type: console
+---
+
+
+# Preparing the environment
+
+```{r, include=FALSE}
+
+#Clear existing data and graphics
+rm(list=ls())
+graphics.off()
+
+```
+
+## Loading the Libraries
+
+```{r Load libraries, warning=FALSE}
+
+# Install and load pacman if not already installed
+if (!require("pacman")) install.packages("pacman")
+
+# Load all the packages using pacman
+pacman::p_load(
+  #for LMM
+  lme4,
+  lmerTest,
+  sjPlot,
+  
+  # for general data wrangling
+  DescTools,
+  lubridate,
+  tidyverse,
+  
+  qqplotr,    # For QQ plots in linear assumptions check
+  performance, # For linear assumptions check
+  see,        # For linear assumptions check
+  rmarkdown,   # For reproducible reporting
+  here# for loading data easily
+)
+
+```
+
+
+
+# Melatonin analysis
+
+## Evening melatonin AUC (primary outcome)
+
+-    Here we use the evening AUC computed with the trapedzoid method.
+-    n=20 (2 participants excluded)
+
+
+```{r load data and functions, echo=FALSE}
+
+load(file = here("Datasets", "Mel_summary.rda"))
+
+#exclude 2 participants
+participants_to_exclude_no <- c("16", "17")
+
+Mel_summary <- Mel_summary %>%
+  filter(!record_id %in% participants_to_exclude_no)
+
+```
+
+### Defining LMMs:
+
+- covariate model (additionally including bright light history, pubertal stage and chronotype)
+
+
+```{r }
+AUC_mel_eve <- lmer(
+formula =  auc_mel_eve ~ Block + D1_TAT1k  + mctq_sc4_chronotype + pub_stage + (1 |record_id),
+                data = Mel_summary) 
+
+
+```
+
+- sparse model
+
+```{r }
+AUC_mel_eve_sparse <- lmer(
+formula =  auc_mel_eve ~ Block + (1 | record_id),
+                data = Mel_summary) 
+
+```
+
+### Assumption check covariate model
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_mel <- performance::check_model(AUC_mel_eve, check=c("pp_check", "ncv",  "qq", "homogeneity","normality"),
+                                           theme="ggplot2::theme_classic", panel=T) #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+assumptest_mel
+
+#save pdf in 6 x 8 inches in Landscape
+
+
+#plot(check_normality(AUC_mel_eve), type="pp")
+
+res <- resid(AUC_mel_eve)
+
+res_df <- as.data.frame(res)
+
+res_MELAUC <- ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (Melatonin AUC)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+res_MELAUC
+
+ggsave(res_MELAUC, file ="C:/Users/Rafael Lazar/Documents/Git Projects/TeenLight/08_output/Melatonin/res_MELAUC.tiff", 
+       width = 8, height = 6, units = "cm", dpi = 600)
+
+
+check_collinearity(AUC_mel_eve)
+
+check_normality(AUC_mel_eve)
+
+
+
+```
+
+
+## Melatonin Onset calculations
+
+-    Here we use data  from fitted melatonin curves resulting from the "HockeyStick" fitting method.
+-    n=20 (2 participants excluded)
+
+
+```{r Hockey Stick analysis, echo=FALSE}
+### Fitted melatonin curves with HockeyStick----------------------------------------------------
+
+load(file = here("Datasets", "merged_mel_timing_HS.rda"))
+
+#exclude 2 participants
+merged_mel_timing_HS <- merged_mel_timing_HS %>% filter(!is.na(HS_time))
+
+
+```
+
+### Defining LMMs:
+
+- covariate model (additionally including bright light history, pubertal stage and chronotype)
+
+
+```{r }
+HS_MLMO <- lmer(
+formula =  HS_time ~ Block +  D1_TAT1k + mctq_sc4_chronotype + pub_stage + (1 | record_id),
+                data = merged_mel_timing_HS) #  
+
+```
+
+- sparse model 
+
+```{r }
+HS_MLMO_sparse <- lmer(
+formula =  HS_time ~ Block + (1 | record_id),
+                data = merged_mel_timing_HS) #  
+
+```
+
+
+### Assumption check covariate model
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_MO <- check_model(HS_MLMO, check=c("pp_check", "ncv",  "qq", "homogeneity","normality"),                          theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+assumptest_MO
+
+res <- resid(HS_MLMO)
+
+res_df <- as.data.frame(res)
+
+res_MELAUC <- ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (Melatonin Onset)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+res_MELAUC
+#save pdf in 6 x 8 inches in Landscape
+
+check_collinearity(HS_MLMO)
+
+check_normality(HS_MLMO)
+
+#plot(check_normality(HS_MLMO), type="pp")
+
+
+```
+
+## Morning melatonin AUC (as indicator for mel offset)
+
+ - This is included in the Supplementary materials not in the main results.
+ - n=20 (2 participants excluded + 1 morning AUC = NA)
+
+
+### Defining LMMs
+
+
+```{r }
+
+# Define  the models with different combinations of covariates
+covariates_combinations_mor <- list(
+  "model0" = auc_mel_mor ~ Block + (1 | record_id),
+  "model7" = auc_mel_mor ~ Block + (1 | record_id) + mctq_sc4_chronotype + pub_stage + D1_TAT1k
+)
+
+```
+
+```{r }
+# Fit the models
+model_results_mor <- lapply(covariates_combinations_mor, function(formula) {
+  lmer(formula, data = Mel_summary)
+})
+
+
+```
+
+### Assumption check covariate model
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_mor2 <- check_model(model_results_mor$model7, check=c("pp_check", "ncv",  "qq", "homogeneity","normality"),                          theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+assumptest_mor2
+
+
+res <- resid(model_results_mor$model7)
+
+res_df <- as.data.frame(res)
+
+res_MELAUC_mor_cov <- ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (morning melatonin AUC)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+res_MELAUC_mor_cov
+
+```
+
+
+# KSS analysis
+
+- n=4 participants excluded from KSS analysis, as they only had a third of the recorded data.
+- in the KSS analysis, we use factor "time" in the LMM models (also in interaction with the condition ("Block")
+
+
+```{r KSS analysis, echo=FALSE}
+
+
+load(file = here("Datasets", "eve_KSS.rda"))
+
+load(file = here("Datasets", "arvo_KSS.rda"))
+
+```
+
+
+
+## Defining LMMs:
+
+- define 4 models: 1 covariate and  1sparse model each for analyses during the afternoon light intervention and the later evening light condition. 
+
+- covariate models additionally include bright light history, pubertal stage and chronotype.
+
+
+```{r}
+
+KSS_eve <- lmer(
+formula =  kss ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype  + pub_stage + (1 | record_id),
+                data = eve_KSS) #  
+
+
+
+
+KSS_arvo <- lmer(
+formula =  kss ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype  + pub_stage + (1 | record_id),  data = arvo_KSS) #  
+
+
+
+KSS_eve_sparse <- lmer(
+formula =  kss ~ Block * centered_time + (1 | record_id),
+                data = eve_KSS) #  
+
+
+
+
+KSS_arvo_sparse <- lmer(
+formula =  kss ~ Block * centered_time + (1 | record_id),  data = arvo_KSS) #  
+
+
+
+```
+
+
+
+## KSS in the later evening condition
+
+
+### Assumption check covariate model
+
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_KSS_eve <- check_model(KSS_eve, check=c("pp_check", "ncv",  "qq", "homogeneity","normality"),                          
+                                  theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+#plot(check_normality(KSS_eve), type="pp")
+
+assumptest_KSS_eve
+
+
+res <- resid(KSS_eve)
+
+res_df <- as.data.frame(res)
+
+
+ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (evening KSS)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+
+#save pdf in 6 x 8 inches in Landscape
+
+check_collinearity(KSS_eve)
+
+check_normality(KSS_eve)
+
+
+```
+
+## KSS during the afternoon to evening light intervention
+
+### Assumption check covariate model
+
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_KSS_arvo <- check_model(KSS_arvo, check=c("pp_check", "ncv",  "qq", "homogeneity","normality"),                          
+                                   theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+#plot(check_normality(KSS_arvo), type="pp")
+assumptest_KSS_arvo
+
+res <- resid(KSS_arvo)
+
+
+res_df <- as.data.frame(res)
+
+
+ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (afternoon KSS)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+
+
+
+
+#save pdf in 6 x 8 inches in Landscape
+
+check_collinearity(KSS_arvo)
+
+check_normality(KSS_arvo)
+
+
+```
+
+
+
+# PVT analysis
+-  PVT mean response speed (mean 1/RT) was the outcome of interest
+- n=22 (no participants excluded)
+- in the PVT analysis, we use factor "time" in the LMM models (also in interaction with the condition ("Block")
+
+
+```{r, echo=FALSE}
+
+
+load(file = here("Datasets", "eve_PVT_stat.rda"))
+
+load(file = here("Datasets", "arvo_PVT_stat.rda"))
+
+
+datastat_eve_mean_1divRT <- subset(eve_PVT_stat, variable == "mean_1divRT")
+
+datastat_arvo_mean_1divRT <- subset(arvo_PVT_stat, variable == "mean_1divRT")
+
+
+count_df <- datastat_eve_mean_1divRT %>%
+  group_by(record_id,cond) %>%
+  summarize(count = n())
+
+
+```
+
+
+## Defining LMMs:
+
+- define 4 models: 1 covariate and  1sparse model each for analyses during the afternoon light intervention and the later evening light condition. 
+
+- covariate models additionally include bright light history, pubertal stage and chronotype.
+
+
+```{r}
+
+PVT_mean_1divRT_eve <- lmer(
+  formula =  value ~ cond * centered_time + D1_TAT1k + mctq_sc4_chronotype + pub_stage + 
+    (1 | record_id), data = datastat_eve_mean_1divRT) #  
+
+
+
+
+PVT_mean_1divRT_arvo <-  lmer(
+  formula =  value ~ cond * centered_time + D1_TAT1k + mctq_sc4_chronotype + pub_stage + 
+    (1 | record_id),  data = datastat_arvo_mean_1divRT) 
+
+
+
+PVT_mean_1divRT_eve_sparse <- lmer(
+  formula =  value ~ cond * centered_time  + (1 | record_id),
+  data = datastat_eve_mean_1divRT)  
+
+
+PVT_mean_1divRT_arvo_sparse  <-  lmer(
+  formula =  value ~ cond * centered_time + (1 | record_id),  data = datastat_arvo_mean_1divRT) 
+
+
+```
+
+## PVT in the later evening condition
+
+
+### Assumption check covariate model
+
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_PVT_eve <- check_model(PVT_mean_1divRT_eve,
+                                  check=c("pp_check", "ncv",  "qq", "homogeneity","normality"), 
+                                  theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+#plot(check_normality(PVT_mean_1divRT_eve), type="pp")
+assumptest_PVT_eve
+
+res <- resid(PVT_mean_1divRT_eve)
+
+
+res_df <- as.data.frame(res)
+
+
+ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (evening PVT response speed)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+
+#save pdf in 6 x 8 inches in Landscape
+
+check_collinearity(PVT_mean_1divRT_eve)
+
+check_normality(PVT_mean_1divRT_eve)
+
+
+```
+
+
+## PVT during the afternoon to evening light intervention
+
+### Assumption check covariate model
+
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_PVT_arvo<- check_model(PVT_mean_1divRT_arvo, 
+                                  check=c("pp_check", "ncv",  "qq", "homogeneity","normality"),   
+                                  theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+#plot(check_normality(PVT_mean_1divRT_arvo), type="pp")
+
+assumptest_PVT_arvo
+
+res <- resid(PVT_mean_1divRT_arvo)
+
+
+res_df <- as.data.frame(res)
+
+
+ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (afternoon PVT response speed)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+
+#save pdf in 6 x 8 inches in Landscape
+
+check_collinearity(PVT_mean_1divRT_arvo)
+
+check_normality(PVT_mean_1divRT_arvo)
+
+
+```
+
+
+# DPG analysis
+
+- DPG in 30 minute bins
+- n=21 (1 participant excluded)
+- in the DPG analysis, we use factor "time" in the LMM models (also in interaction with the condition ("Block")
+
+
+
+```{r, echo=FALSE }
+
+
+load(file = here("Datasets", "eve_DPG.rda"))
+
+load(file = here("Datasets", "arvo_DPG.rda"))
+
+```
+
+
+## Defining LMMs:
+
+- define 4 models: 1 covariate and  1sparse model each for analyses during the afternoon light intervention and the later evening light condition. 
+
+- covariate models additionally include bright light history, pubertal stage and chronotype.
+
+
+```{r }
+
+DPG_eve <-  lmer(
+formula =  DPG ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype + pub_stage + (1|record_id),
+                data = eve_DPG) # 
+
+
+DPG_eve_sparse <-  lmer(
+formula =  DPG ~ Block * centered_time + (1|record_id),
+                data = eve_DPG) # 
+
+
+
+DPG_arvo <-  lmer(
+formula =  DPG ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype  + pub_stage + (1|record_id),  data = arvo_DPG) #  
+
+
+
+DPG_arvo_sparse <-  lmer(
+formula =  DPG ~ Block * centered_time + (1|record_id),  data = arvo_DPG) #  
+
+
+```
+
+## DPG in the later evening condition
+
+
+### Assumption check covariate model
+
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_DPG_eve<- check_model(DPG_eve, 
+                                 check=c("pp_check", "ncv",  "qq", "homogeneity","normality"),               
+                                 theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+#plot(check_normality(DPG_eve), type="pp")
+
+assumptest_DPG_eve
+
+res <- resid(DPG_eve)
+
+res_df <- as.data.frame(res)
+
+
+ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (evening DPG)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+
+#save pdf in 6 x 8 inches in Landscape
+
+check_collinearity(DPG_eve)
+
+check_normality(DPG_eve)
+
+
+```
+
+## DPG during the afternoon to evening light intervention
+
+### Assumption check covariate model
+
+
+```{r,  fig.height = 10, fig.width = 15, fig.align = "center"}
+
+assumptest_DPG_arvo<- check_model(DPG_arvo,
+                                  check=c("pp_check", "ncv",  "qq", "homogeneity","normality"), 
+                                  theme="ggplot2::theme_classic") #"outliers",  "normality",  "vif",
+#base_size=6, title_size=6, axis_title_size=6, 
+
+#plot(check_normality(DPG_arvo), type="pp")
+
+assumptest_DPG_arvo
+
+res <- resid(DPG_arvo)
+
+res_df <- as.data.frame(res)
+
+
+ggplot(res_df, aes(x=res)) + 
+  geom_histogram(bins=20, color="black", fill="grey")+
+  labs(x="Residuals (afternoon DPG)", y="Frequency")+
+  theme_classic() #binwidth=6
+
+
+#save pdf in 6 x 8 inches in Landscape
+
+check_collinearity(DPG_arvo)
+
+check_normality(DPG_arvo)
+
+
+```
+
+
+

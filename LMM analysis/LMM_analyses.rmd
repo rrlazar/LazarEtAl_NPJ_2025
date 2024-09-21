@@ -1,0 +1,691 @@
+---
+title: "LMM analyses TeenLight"
+author: "R Lazar"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+format:
+  html:
+    embed-resources: true
+    code-fold: false
+    code-summary: "Show the code"
+editor: source
+warning: false
+editor_options:
+  chunk_output_type: console
+---
+
+
+# Preparing the environment
+
+```{r, include=FALSE}
+
+#Clear existing data and graphics
+rm(list=ls())
+graphics.off()
+
+```
+
+## Loading the Libraries
+
+```{r Load libraries, warning=FALSE}
+
+# Install and load pacman if not already installed
+if (!require("pacman")) install.packages("pacman")
+
+# Load all the packages using pacman
+pacman::p_load(
+  #for LMM
+  lme4,
+  lmerTest,
+  sjPlot,
+  
+  # for general data wrangling
+  DescTools,
+  lubridate,
+  tidyverse,
+  
+  qqplotr,    # For QQ plots in linear assumptions check
+  performance, # For linear assumptions check
+  see,        # For linear assumptions check
+  rmarkdown,   # For reproducible reporting
+  here# for loading data easily
+)
+
+```
+
+---
+
+# Melatonin analysis
+
+## Evening melatonin AUC (primary outcome)
+
+-    Here we use the evening AUC computed with the trapedzoid method.
+-    n=20 (2 participants excluded)
+
+
+```{r load data and functions, echo=FALSE}
+
+load(file = here("Datasets", "Mel_summary.rda"))
+
+#exclude 2 participants
+participants_to_exclude_no <- c("16", "17")
+
+Mel_summary <- Mel_summary %>%
+  filter(!record_id %in% participants_to_exclude_no)
+
+```
+
+
+### Defining LMMs:
+
+- covariate model (additionally including bright light history, pubertal stage and chronotype)
+
+
+```{r }
+AUC_mel_eve <- lmer(
+formula =  auc_mel_eve ~ Block + D1_TAT1k  + mctq_sc4_chronotype + pub_stage + (1 |record_id),
+                data = Mel_summary) 
+
+
+```
+
+- sparse model
+
+```{r }
+AUC_mel_eve_sparse <- lmer(
+formula =  auc_mel_eve ~ Block + (1 | record_id),
+                data = Mel_summary) 
+
+```
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r }
+
+
+summary(AUC_mel_eve)
+
+confint(AUC_mel_eve)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+tab_model(AUC_mel_eve, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r }
+
+summary(AUC_mel_eve_sparse)
+confint(AUC_mel_eve_sparse)
+
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(AUC_mel_eve_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+```
+
+
+### Melatonin Onset calculations
+
+-    Here we use data  from fitted melatonin curves resulting from the "HockeyStick" fitting method.
+-    n=20 (2 participants excluded)
+
+
+```{r Hockey Stick analysis, echo=FALSE}
+### Fitted melatonin curves with HockeyStick----------------------------------------------------
+
+load(file = here("Datasets", "merged_mel_timing_HS.rda"))
+
+#exclude 2 participants
+merged_mel_timing_HS <- merged_mel_timing_HS %>% filter(!is.na(HS_time))
+
+
+```
+
+### Defining LMMs:
+
+- covariate model (additionally including bright light history, pubertal stage and chronotype)
+
+```{r }
+HS_MLMO <- lmer(
+formula =  HS_time ~ Block +  D1_TAT1k + mctq_sc4_chronotype + pub_stage + (1 | record_id),
+                data = merged_mel_timing_HS) #  
+
+```
+
+- sparse model 
+
+```{r }
+HS_MLMO_sparse <- lmer(
+formula =  HS_time ~ Block + (1 | record_id),
+                data = merged_mel_timing_HS) #  
+
+```
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r }
+
+summary(HS_MLMO)
+
+confint(HS_MLMO)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+
+tab_model(HS_MLMO, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+         
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r}
+
+summary(HS_MLMO_sparse)
+
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(HS_MLMO_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+
+## Morning melatonin AUC (as indicator for mel offset)
+
+ - This is included in the Supplementary materials not in the main results.
+ - n=20 (2 participants excluded + 1 morning AUC= NA)
+
+### Defining LMMs
+
+```{r }
+
+
+
+# Define  the models with different combinations of covariates
+covariates_combinations_mor <- list(
+  "model0" = auc_mel_mor ~ Block + (1 | record_id),
+  "model7" = auc_mel_mor ~ Block + (1 | record_id) + mctq_sc4_chronotype + pub_stage + D1_TAT1k)
+
+```
+
+```{r }
+# Fit the models
+model_results_mor <- lapply(covariates_combinations_mor, function(formula) {
+  lmer(formula, data = Mel_summary)
+})
+
+
+```
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r}
+
+# Fit a linear mixed-effects model for the summary data (no covariates)
+
+
+summary(model_results_mor$model7)
+confint(model_results_mor$model7)
+
+```
+
+### Random effect summary for covariate model
+
+```{r }
+
+tab_model(model_results_mor$model7, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r}
+
+summary(model_results_mor$model0)
+confint(model_results_mor$model0)
+
+```
+
+### Random effect summary for sparse  model
+
+```{r, echo=FALSE }
+
+tab_model(model_results_mor$model0, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+
+# KSS analysis
+
+- n=4 participants excluded from KSS analysis, as they only had a third of the recorded data.
+- in the KSS analysis, we use factor "time" in the LMM models (also in interaction with the condition ("Block")
+
+
+```{r KSS analysis, echo=FALSE}
+
+
+load(file = here("Datasets", "eve_KSS.rda"))
+
+load(file = here("Datasets", "arvo_KSS.rda"))
+
+```
+
+## Defining LMMs:
+
+- define 4 models: 1 covariate and  1sparse model each for analyses during the afternoon light intervention and the later evening light condition. 
+
+- covariate models additionally include bright light history, pubertal stage and chronotype.
+
+
+```{r}
+
+KSS_eve <- lmer(
+formula =  kss ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype  + pub_stage + (1 | record_id),
+                data = eve_KSS) #  
+
+KSS_arvo <- lmer(
+formula =  kss ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype  + pub_stage + (1 | record_id),  data = arvo_KSS) #  
+
+
+
+KSS_eve_sparse <- lmer(
+formula =  kss ~ Block * centered_time + (1 | record_id),
+                data = eve_KSS) #  
+
+
+KSS_arvo_sparse <- lmer(
+formula =  kss ~ Block * centered_time + (1 | record_id),  data = arvo_KSS) #  
+
+
+
+```
+
+## KSS in the later evening condition
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r}
+
+summary(KSS_eve)
+
+confint(KSS_eve)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+tab_model(KSS_eve, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r }
+
+
+summary(KSS_eve_sparse)
+
+confint(KSS_eve_sparse)
+
+
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(KSS_eve_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+## KSS during the afternoon to evening light intervention
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r }
+
+# Fit a linear mixed-effects model for the summary data (no covariates)
+
+
+summary(KSS_arvo)
+
+confint(KSS_arvo)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+tab_model(KSS_arvo, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r }
+
+# Fit a linear mixed-effects model for the summary data (no covariates)
+
+
+summary(KSS_arvo_sparse)
+
+confint(KSS_arvo_sparse)
+
+
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(KSS_arvo_sparse, p.threshold =0.05,  show.se=T, show.stat=T, show.df = T, 
+          show.aic = T#, pred.labels = pred_labels_time)
+)
+
+```
+
+
+# PVT analysis
+-  PVT mean response speed (mean 1/RT) was the outcome of interest
+- n=22 (no participants excluded)
+- in the PVT analysis, we use factor "time" in the LMM models (also in interaction with the condition ("Block")
+
+
+```{r, echo=FALSE}
+
+
+load(file = here("Datasets", "eve_PVT_stat.rda"))
+
+load(file = here("Datasets", "arvo_PVT_stat.rda"))
+
+
+datastat_eve_mean_1divRT <- subset(eve_PVT_stat, variable == "mean_1divRT")
+
+datastat_arvo_mean_1divRT <- subset(arvo_PVT_stat, variable == "mean_1divRT")
+
+
+count_df <- datastat_eve_mean_1divRT %>%
+  group_by(record_id,cond) %>%
+  summarize(count = n())
+
+
+```
+
+## Defining LMMs:
+
+- define 4 models: 1 covariate and  1sparse model each for analyses during the afternoon light intervention and the later evening light condition. 
+
+- covariate models additionally include bright light history, pubertal stage and chronotype.
+
+```{r}
+
+PVT_mean_1divRT_eve <- lmer(
+formula =  value ~ cond * centered_time + D1_TAT1k + mctq_sc4_chronotype + pub_stage + (1 | record_id),
+                data = datastat_eve_mean_1divRT) #  
+
+
+
+
+PVT_mean_1divRT_arvo <-  lmer(
+formula =  value ~ cond * centered_time + D1_TAT1k + mctq_sc4_chronotype + pub_stage +  (1 | record_id),  data = datastat_arvo_mean_1divRT) #  
+
+
+
+PVT_mean_1divRT_eve_sparse <- lmer(
+formula =  value ~ cond * centered_time  + (1 | record_id),
+                data = datastat_eve_mean_1divRT) #  
+
+
+
+
+PVT_mean_1divRT_arvo_sparse  <-  lmer(
+formula =  value ~ cond * centered_time + (1 | record_id),  data = datastat_arvo_mean_1divRT) #  
+
+
+
+
+```
+
+## PVT in the later evening condition
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r }
+
+# Fit a linear mixed-effects model for the summary data (no covariates)
+
+summary(PVT_mean_1divRT_eve)
+confint(PVT_mean_1divRT_eve)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+tab_model(PVT_mean_1divRT_eve, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r }
+
+# Fit a linear mixed-effects model for the summary data (no covariates)
+
+
+summary(PVT_mean_1divRT_eve_sparse)
+
+confint(PVT_mean_1divRT_eve_sparse)
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(PVT_mean_1divRT_eve_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+## PVT during the afternoon to evening light intervention
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r }
+
+summary(PVT_mean_1divRT_arvo)
+
+confint(PVT_mean_1divRT_arvo)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+tab_model(PVT_mean_1divRT_arvo, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r }
+
+# Fit a linear mixed-effects model for the summary data (no covariates)
+
+
+summary(PVT_mean_1divRT_arvo_sparse)
+
+confint(PVT_mean_1divRT_arvo_sparse)
+
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(PVT_mean_1divRT_arvo_sparse, p.threshold =0.05,  show.se=T, show.stat=T, show.df = T, show.aic = T#, pred.labels = pred_labels_time)
+)
+
+```
+
+
+# DPG analysis
+
+- DPG in 30 minute bins
+- n=21 (1 participant excluded)
+- in the DPG analysis, we use factor "time" in the LMM models (also in interaction with the condition ("Block")
+
+
+```{r, echo=FALSE }
+
+
+load(file = here("Datasets", "eve_DPG.rda"))
+
+load(file = here("Datasets", "arvo_DPG.rda"))
+
+```
+
+
+## Defining LMMs:
+
+- define 4 models: 1 covariate and  1sparse model each for analyses during the afternoon light intervention and the later evening light condition. 
+
+- covariate models additionally include bright light history, pubertal stage and chronotype.
+
+```{r }
+
+DPG_eve <-  lmer(
+formula =  DPG ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype + pub_stage + (1|record_id),
+                data = eve_DPG) # 
+
+
+DPG_eve_sparse <-  lmer(
+formula =  DPG ~ Block * centered_time + (1|record_id),
+                data = eve_DPG) # 
+
+
+
+DPG_arvo <-  lmer(
+formula =  DPG ~ Block * centered_time + D1_TAT1k + mctq_sc4_chronotype  + pub_stage + (1|record_id),  data = arvo_DPG) #  
+
+
+
+DPG_arvo_sparse <-  lmer(
+formula =  DPG ~ Block * centered_time + (1|record_id),  data = arvo_DPG) #  
+
+
+
+
+```
+
+## DPG in the later evening condition
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r }
+
+summary(DPG_eve)
+
+confint(DPG_eve)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+tab_model(DPG_eve, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r }
+
+summary(DPG_eve_sparse)
+
+confint(DPG_eve_sparse)
+
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(DPG_eve_sparse, p.threshold =0.05,  show.se=T, show.stat=T, show.df = T, 
+          show.aic = T#, pred.labels = pred_labels_time)
+)
+```
+
+
+## DPG during the afternoon to evening light intervention
+
+### Compute LMM results for covariate model (relative to "dim" condition)
+
+```{r }
+
+summary(DPG_arvo)
+
+confint(DPG_arvo)
+
+```
+
+### Random effect summary for covariate model
+
+```{r}
+
+tab_model(DPG_arvo, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+```
+
+### Compute LMM results for sparse model (relative to "dim" condition)
+
+```{r }
+
+
+summary(DPG_arvo_sparse)
+
+confint(DPG_arvo_sparse)
+
+```
+
+### Random effect summary for sparse  model
+
+```{r}
+
+tab_model(DPG_arvo_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+```
+
+
+
