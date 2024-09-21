@@ -27,33 +27,87 @@ lapply(names(sessionInfo()$otherPkgs), function(pkgs)
     force = T
   ))
 
+# Install and load pacman if not already installed
+if (!require("pacman")) install.packages("pacman")
 
-# # Libraries
-library(tidyverse)
-library(ggthemes)
-library(dplyr)
-library(scales);
-library(ggpmisc)
-library(ggplot2)
-library(ggpubr)
-library(ggsignif)
-library(drc)
-library(gridExtra)
-library(grid);
-library(gridtext)
-library(DescTools)
-library(zoo)
-library(cowplot)
+# Load all the necessary packages using pacman
+pacman::p_load(
+  tidyverse,  
+  psych,       
+  ggthemes,  
+  scales,   
+  ggplot2,         
+  ggpubr,    
+  gridExtra,
+  grid,
+  cowplot, 
+  here
+  
+)
 
 
+
+
+
+
+#source plotting functions--------------------------------------------------
+ar<- 1/1
+shape_datapoints = 21
+size_datapoints = 1.5
+stroke_datapoints = 0.5 # thickness of circles
 block_cols <- c("#999999","darkslategray3", "#E69F00")
+margins = unit(c(1, 0.5, 1, 1), 'mm')
+pd <- ggplot2::position_dodge(0)
+linetypes <- c(5,6,1)
+linesize <- 0.6
+legend_title <- "AEE light intervention"
 
-#laod data and source plotting functions
 
-source("C:/Users/Rafael Lazar/Documents/Git Projects/TeenLight/06_planned_analysis/plotting_functions.r")
+gg_light <-function(dataset) {
+  ggplot(dataset, aes(x=Wavelength, y=value, col=name,
+  ))+
+    
+    #0 set specific colouring & types
+    scale_color_manual(legend_title, values = block_cols)+
+    scale_linetype_manual(legend_title, values = linetypes)+
+    scale_fill_manual(legend_title, values = block_cols)+
+    
+    # 2 set up axes breaks
+    scale_x_continuous(limits=c(380,780), 
+                       breaks =c(seq(380,780,40)))+
+    
+    scale_y_log10()+
+    labs(x="Wavelength [nm]", 
+         y=expression("Spectral Irradiance"~"["*log[10]~(W~m^{-2}~nm^{-1})*"]"))+
+    
+    #3 set up line, points & errorbar 
+    geom_line(position=pd, size=linesize, lwd=1)+
+    # 4 Theme settings
+    theme(aspect.ratio = ar)+
+    theme(axis.title.x = element_blank())+    
+    theme(axis.title.y = element_text(face="plain", size=12, vjust = 1))+                                 
+    theme(plot.title = element_text(face="bold", size = 18, vjust=1.5))+
+    theme(plot.subtitle = element_text(size = 12, vjust=1.5, face="bold"))+
+    theme(legend.title = element_text(size = 12, face="bold"))+
+    theme(legend.text = element_text(size = 12))+
+    theme(axis.line.x = element_line(colour = "black"), 
+          axis.line.y = element_line(colour = "black"),
+          panel.grid.minor = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank(),
+          plot.margin= margins,
+          legend.position = "bottom",
+          legend.justification = "center",
+          axis.ticks.length=unit(0.2,"cm"))+
+    theme_classic()
+  
+}
+
 
 #Condition Spectra  -------------------------------------------------
-spectra <- read.csv("./05_demographics/Light/Main_Table_Cond_vert_spectra_luox.csv") %>%
+
+spectra <-  read.csv(file = here("Demographics/light data", "Main_Table_Cond_vert_spectra_luox.csv"))%>%
   rename(Wavelength= Wavelength..nm.)
 
 spectra$Wavelength[which.max(spectra$Bright)]
@@ -61,8 +115,6 @@ spectra$Wavelength[which.max(spectra$Bright)]
 spectra$Wavelength[which.max(spectra$Moderate)]
 
 spectra$Wavelength[which.max(spectra$Dim)]
-
-
 
 
 spectra_L <- spectra %>% pivot_longer(cols=c("Dim", "Moderate", "Bright"))
@@ -75,12 +127,8 @@ spectra_plot_log <- gg_light(spectra_L)
 
 spectra_plot_log
 
-ggsave(spectra_plot_log, file = "./08_output/spectra_plot_log.svg", 
+ggsave(spectra_plot_log, file = "./Demographics/light data/spectra_plot_log.svg", 
        width = 200, height = 110, units = "mm", dpi = 1000)
-
-ggsave(spectra_plot_log, file = "./08_output/spectra_plot_log.tiff", 
-       width = 200, height = 110, units = "mm", dpi = 1000)
-
   
   
 spectra_plot<- gg_light(spectra_L)+
@@ -91,32 +139,12 @@ spectra_plot<- gg_light(spectra_L)+
 
 spectra_plot
 
-ggsave(spectra_plot, file = "./08_output/spectra_plot.svg", 
+ggsave(spectra_plot, file = "./Demographics/light data/spectra_plot.svg", 
        width = 200, height = 110, units = "mm", dpi = 1000)
 
 
-# spectra Long table
-
-
-
-
 #BlueBlocker transmission  -------------------------------------------------
-bb <- read.csv("./05_demographics/Light/AugenLichtSchutz_redXD.csv") 
-
-bb_int <- approx(x=bb$Wavelength, y=bb$value, xout=380:780, method = "linear")
-
-
-bb_int <-as.data.frame(bb_int)
-
-bb_int$y <- bb_int$y/100
-
-bb_int <- round(bb_int,2)
-
-colnames(bb_int) <- c("Wavelength", "transmission")
-
-write.csv(bb_int, file="./05_demographics/Light/bb_filter_int.csv", row.names = F)
-
-
+bb <-  read.csv(file = here("Demographics/light data", "AugenLichtSchutz_redXD.csv"))
 
 bb <- round(bb,0)
 
@@ -130,25 +158,6 @@ BB_plot <- gg_light(bb)+
 
 BB_plot
 
-ggsave(BB_plot, file = "./08_output/BB_plot.svg", 
+ggsave(BB_plot, file = "./Demographics/light data/BB_plot.svg", 
        width = 200, height = 110, units = "mm", dpi = 1000)
 
-#Neutral Density filter -------------------------------------------------
-
-
-nd <- read.csv("./05_demographics/Light/LeetfilterND_211_0.9_webplotdata_clean.csv") 
-
-nd$value <- nd$value*100
-nd <- round(nd,0)
-
-nd$name <- "LeeFilter ND 0.9"
-
-ND_plot <- gg_light(nd)+
-  scale_y_continuous(limits=c(0,100),breaks = seq(0,100,25)) +
-  labs(y="Transmission [%]")+
-  scale_color_manual(legend_title, values ="black")+
-  theme(legend.position = "none")
-ND_plot
-
-ggsave(ND_plot, file = "./08_output/ND_plot.svg", 
-       width = 200, height = 110, units = "mm", dpi = 1000)
