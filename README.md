@@ -49,7 +49,6 @@ Code and data for the Lazar et al 2024 publication
 - pub_stage 		= Self-report based pubertal stage [factor]
 - record_id 		= Participant identification number [factor]
 - Value			= Temperature value of single iButtons (including room temperature) [numeric]
-- Wavelength		= 
 
 
 ###  PVT variable names
