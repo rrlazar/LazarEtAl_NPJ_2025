@@ -64,7 +64,7 @@ pacman::p_load(
 
 ```{r load data and functions, echo=FALSE}
 
-load(file = here("Datasets", "Mel_summary.rda"))
+load(file = here("LMM analysis/Datasets", "Mel_summary.rda"))
 
 #exclude 2 participants
 participants_to_exclude_no <- c("16", "17")
@@ -144,7 +144,7 @@ check_normality(AUC_mel_eve)
 ```{r Hockey Stick analysis, echo=FALSE}
 ### Fitted melatonin curves with HockeyStick----------------------------------------------------
 
-load(file = here("Datasets", "merged_mel_timing_HS.rda"))
+load(file = here("LMM analysis/Datasets", "merged_mel_timing_HS.rda"))
 
 #exclude 2 participants
 merged_mel_timing_HS <- merged_mel_timing_HS %>% filter(!is.na(HS_time))
@@ -265,9 +265,9 @@ res_MELAUC_mor_cov
 ```{r KSS analysis, echo=FALSE}
 
 
-load(file = here("Datasets", "eve_KSS.rda"))
+load(file = here("LMM analysis/Datasets", "eve_KSS.rda"))
 
-load(file = here("Datasets", "arvo_KSS.rda"))
+load(file = here("LMM analysis/Datasets", "arvo_KSS.rda"))
 
 ```
 
@@ -396,9 +396,9 @@ check_normality(KSS_arvo)
 ```{r, echo=FALSE}
 
 
-load(file = here("Datasets", "eve_PVT_stat.rda"))
+load(file = here("LMM analysis/Datasets", "eve_PVT_stat.rda"))
 
-load(file = here("Datasets", "arvo_PVT_stat.rda"))
+load(file = here("LMM analysis/Datasets", "arvo_PVT_stat.rda"))
 
 
 datastat_eve_mean_1divRT <- subset(eve_PVT_stat, variable == "mean_1divRT")
@@ -534,9 +534,9 @@ check_normality(PVT_mean_1divRT_arvo)
 ```{r, echo=FALSE }
 
 
-load(file = here("Datasets", "eve_DPG.rda"))
+load(file = here("LMM analysis/Datasets", "eve_DPG.rda"))
 
-load(file = here("Datasets", "arvo_DPG.rda"))
+load(file = here("LMM analysis/Datasets", "arvo_DPG.rda"))
 
 ```
 
