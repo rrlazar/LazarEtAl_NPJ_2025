@@ -347,7 +347,7 @@ check_normality(KSS_eve)
 
 ```
 
-## KSS during the afternoon to evening light intervention
+## KSS during the AEE light intervention
 
 ### Assumption check covariate model
 
@@ -485,7 +485,7 @@ check_normality(PVT_mean_1divRT_eve)
 ```
 
 
-## PVT during the afternoon to evening light intervention
+## PVT during the AEE light intervention
 
 ### Assumption check covariate model
 
@@ -609,7 +609,7 @@ check_normality(DPG_eve)
 
 ```
 
-## DPG during the afternoon to evening light intervention
+## DPG during the AEE light intervention
 
 ### Assumption check covariate model
 

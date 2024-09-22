@@ -134,7 +134,7 @@ tab_model(AUC_mel_eve_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE
 ```
 
 
-### Melatonin Onset calculations
+## Melatonin Onset calculations
 
 -    Here we use data  from fitted melatonin curves resulting from the "HockeyStick" fitting method.
 -    n=20 (2 participants excluded)
@@ -196,6 +196,7 @@ tab_model(HS_MLMO, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat
 ```{r}
 
 summary(HS_MLMO_sparse)
+confint(HS_MLMO_sparse)
 
 ```
 
@@ -223,7 +224,7 @@ tab_model(HS_MLMO_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, sh
 # Define  the models with different combinations of covariates
 covariates_combinations_mor <- list(
   "model0" = auc_mel_mor ~ Block + (1 | record_id),
-  "model7" = auc_mel_mor ~ Block + (1 | record_id) + mctq_sc4_chronotype + pub_stage + D1_TAT1k)
+  "model7" = auc_mel_mor ~ Block + D1_TAT1k  + mctq_sc4_chronotype + pub_stage + (1 | record_id))
 
 ```
 
@@ -363,7 +364,7 @@ tab_model(KSS_eve_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, sh
 
 ```
 
-## KSS during the afternoon to evening light intervention
+## KSS during the AEE light intervention
 
 ### Compute LMM results for covariate model (relative to "dim" condition)
 
@@ -404,9 +405,7 @@ confint(KSS_arvo_sparse)
 
 ```{r}
 
-tab_model(KSS_arvo_sparse, p.threshold =0.05,  show.se=T, show.stat=T, show.df = T, 
-          show.aic = T#, pred.labels = pred_labels_time)
-)
+tab_model(KSS_arvo_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
 
 ```
 
@@ -515,7 +514,7 @@ tab_model(PVT_mean_1divRT_eve_sparse, show.est = FALSE, show.ci = FALSE, show.se
 
 ```
 
-## PVT during the afternoon to evening light intervention
+## PVT during the AEE light intervention
 
 ### Compute LMM results for covariate model (relative to "dim" condition)
 
@@ -553,8 +552,7 @@ confint(PVT_mean_1divRT_arvo_sparse)
 
 ```{r}
 
-tab_model(PVT_mean_1divRT_arvo_sparse, p.threshold =0.05,  show.se=T, show.stat=T, show.df = T, show.aic = T#, pred.labels = pred_labels_time)
-)
+tab_model(PVT_mean_1divRT_arvo_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
 
 ```
 
@@ -642,13 +640,11 @@ confint(DPG_eve_sparse)
 
 ```{r}
 
-tab_model(DPG_eve_sparse, p.threshold =0.05,  show.se=T, show.stat=T, show.df = T, 
-          show.aic = T#, pred.labels = pred_labels_time)
-)
+tab_model(DPG_eve_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
 ```
 
 
-## DPG during the afternoon to evening light intervention
+## DPG during the AEE light intervention
 
 ### Compute LMM results for covariate model (relative to "dim" condition)
 
