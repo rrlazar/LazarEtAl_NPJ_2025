@@ -8,7 +8,7 @@ This repository contains the datasets and analysis code of the manuscript "After
 
 ## Light dataset names
 
-- bbspectacles		= Dataset containing the transmission of short-wavelength filter glasses ( applied out of the laboratory.
+- bbspectacles		= Dataset containing the transmission of short-wavelength filter glasses (applied out of the laboratory.
 
 - vert_spectra		= Dataset containing the spectral irradiance distribution per AAE light interventions (Wavelength, Dim, Moderate Bright) during 			task-free periods (curtains closed). The vertical light measurements were taken with a spectroradiometer placed at the eye level 			of the seated participants (115 cm from the floor, 85 cm from the overhead light source, 80 cm from the white curtain, Spectraval 			1501, JETI Technische Instrumente GmbH, Jena, Germany, last calibration: 07.03.2023). 
 
