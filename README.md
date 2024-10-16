@@ -1,5 +1,5 @@
-# LazarEtAl_NatHumBehav_2024
-Code and data for the Lazar et al 2024 publication.
+# Afternoon to early evening bright light exposure reduces later melatonin production in adolescents
+Code and data for the Lazar et al 2024 manuscript.
 
 # Licensing
 
