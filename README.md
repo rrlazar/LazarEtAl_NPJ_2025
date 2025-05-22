@@ -1,5 +1,5 @@
 # Afternoon to early evening bright light exposure reduces later melatonin production in adolescents
-Code and data for the Lazar et al 2024 manuscript.
+Code and data for the Lazar et al 2025 manuscript.
 
 # Licensing
 

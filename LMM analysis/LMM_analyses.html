@@ -6127,11 +6127,11 @@ p-value
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>KSS_DPG <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
-<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a><span class="at">formula =</span>  kss <span class="sc">~</span> DPG <span class="sc">+</span> Number <span class="sc">+</span> Block <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span>record_id), <span class="co">#+ D1_TAT1k  + mctq_sc4_chronotype + pub_stage + Block </span></span>
-<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> eve_DPG_KSS ) </span>
-<span id="cb123-4"><a href="#cb123-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb123-5"><a href="#cb123-5" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute linear model with DPG as a predictor</span></span>
+<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a>KSS_DPG <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb123-4"><a href="#cb123-4" aria-hidden="true" tabindex="-1"></a><span class="at">formula =</span>  kss <span class="sc">~</span> DPG <span class="sc">+</span> Number <span class="sc">+</span> Block <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span>record_id), <span class="co">#+ D1_TAT1k  + mctq_sc4_chronotype + pub_stage + Block </span></span>
+<span id="cb123-5"><a href="#cb123-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> eve_DPG_KSS ) </span>
 <span id="cb123-6"><a href="#cb123-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb123-7"><a href="#cb123-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb123-8"><a href="#cb123-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(KSS_DPG)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
