@@ -37,6 +37,10 @@ pacman::p_load(
   lme4,
   lmerTest,
   sjPlot,
+  lqmm,
+  
+  # for repeated measure correlation
+  rmcorr,
   
   # for general data wrangling
   DescTools,
@@ -96,6 +100,9 @@ formula =  auc_mel_eve ~ Block + (1 | record_id),
                 data = Mel_summary) 
 
 ```
+
+
+
 
 ### Compute LMM results for covariate model (relative to "dim" condition)
 
@@ -467,8 +474,6 @@ PVT_mean_1divRT_arvo_sparse  <-  lmer(
 formula =  value ~ cond * centered_time + (1 | record_id),  data = datastat_arvo_mean_1divRT) #  
 
 
-
-
 ```
 
 ## PVT in the later evening condition
@@ -683,5 +688,154 @@ tab_model(DPG_arvo_sparse, show.est = FALSE, show.ci = FALSE, show.se = FALSE, s
 
 ```
 
+# Added after review
 
+
+## Testing median differences in Mel AUC between light conditions, resp. Fig. 5 [R2.01]
+
+```{r }
+# Fit the Quantile Mixed Model (τ = 0.5 for the median) referring to  reviewer's comment [R2.01]
+set.seed(20250208)  # set.seed number based on date of code 1st excecution
+AUC_mel_eve_qmm <- lqmm(
+  fixed = auc_mel_eve ~ Block,# + D1_TAT1k + mctq_sc4_chronotype + pub_stage, 
+  random = ~ 1, 
+  group = record_id, 
+  tau = 0.5, 
+  data = Mel_summary, 
+  control = lqmmControl(LP_max_iter = 10000, UP_max_iter = 500)
+)
+
+
+# Print model summary
+summary(AUC_mel_eve_qmm)
+```
+
+## Testing for differences in ambulatory light (D1_TAT1k) between light conditions [R2.03]
+
+```{r }
+TATlmer <- lmer(
+formula =  D1_TAT1k ~ Block + (1 | record_id),
+                data = Mel_summary) #  
+
+
+summary(TATlmer)
+
+confint(TATlmer)
+
+
+```
+
+
+```{r}
+#random effects summary
+
+sjPlot::tab_model(TATlmer, show.est = FALSE, show.ci = FALSE, show.se = FALSE, show.stat = FALSE, show.p = FALSE)
+
+```
+
+```{r }
+emmeans_TAT <- emmeans::emmeans(TATlmer, "Block")
+
+# Pairwise comparisons with Tukey adjustment
+contrasts_TAT <- pairs(emmeans_TAT, adjust = "Tukey")
+
+# Display the comparisons
+summary(contrasts_TAT)
+
+```
+
+
+## Association betweeen DPG and KSS data in the afternoon
+
+```{r }
+
+# merge datasets
+arvo_DPG_adj <- arvo_DPG %>% mutate(Number=Bin_30m+1)
+
+arvo_DPG_KSS <- inner_join(arvo_DPG_adj  %>% select (record_id, DPG, Number, minbeforehbt, Block),
+                       arvo_KSS %>% select(record_id, kss, Number, minbeforehbt, Block), by = c("record_id","Block", "Number"))
+
+
+
+# Check structure
+str(arvo_DPG_KSS)
+
+
+arvo_DPG_KSS_nobr <- arvo_DPG_KSS %>% filter (Block!= "bright")
+
+
+```
+
+```{r }
+
+# Compute repeated-measures correlation between PVT and DPG
+rmcorr_KSS_DPG_arvo <- rmcorr(participant = record_id, 
+                          measure1 = kss,  # PVT (reaction time)
+                          measure2 = DPG,    # DPG (skin temperature drop)
+                          dataset = arvo_DPG_KSS)
+
+# Print results
+print(rmcorr_KSS_DPG_arvo)
+
+# Plot repeated-measures correlation
+plot(rmcorr_KSS_DPG_arvo)
+
+
+KSS_DPG <- lmer(
+formula =  kss ~ DPG + Number + Block + (1 |record_id), #+ D1_TAT1k  + mctq_sc4_chronotype + pub_stage + Block 
+                data = arvo_DPG_KSS) 
+
+
+
+
+summary(KSS_DPG)
+
+```
+
+## Association betweeen DPG and KSS data in the evening
+
+```{r }
+
+# merge datasets
+eve_DPG_adj <- eve_DPG %>% mutate(Number=Bin_30m+1)
+
+eve_DPG_KSS <- inner_join(eve_DPG_adj  %>% select (record_id, DPG, Number, minbeforehbt, Block),
+                       eve_KSS %>% select(record_id, kss, Number, minbeforehbt, Block), by = c("record_id","Block", "Number"))
+
+
+
+# Check structure
+str(eve_DPG_KSS)
+
+
+eve_DPG_KSS_nobr <- eve_DPG_KSS %>% filter (Block!= "bright")
+
+
+```
+
+```{r }
+
+# Compute repeated-measures correlation between PVT and DPG
+rmcorr_KSS_DPG_eve <- rmcorr(participant = record_id, 
+                          measure1 = kss,  # PVT (reaction time)
+                          measure2 = DPG,    # DPG (skin temperature drop)
+                          dataset = eve_DPG_KSS)
+
+# Print results
+print(rmcorr_KSS_DPG_eve)
+
+# Plot repeated-measures correlation
+plot(rmcorr_KSS_DPG_eve)
+
+
+KSS_DPG <- lmer(
+formula =  kss ~ DPG + Number + Block + (1 |record_id), #+ D1_TAT1k  + mctq_sc4_chronotype + pub_stage + Block 
+                data = eve_DPG_KSS ) 
+
+
+
+
+summary(KSS_DPG)
+
+```
 
