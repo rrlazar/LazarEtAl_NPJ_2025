@@ -827,7 +827,7 @@ print(rmcorr_KSS_DPG_eve)
 # Plot repeated-measures correlation
 plot(rmcorr_KSS_DPG_eve)
 
-
+# compute linear model with DPG as a predictor
 KSS_DPG <- lmer(
 formula =  kss ~ DPG + Number + Block + (1 |record_id), #+ D1_TAT1k  + mctq_sc4_chronotype + pub_stage + Block 
                 data = eve_DPG_KSS ) 
