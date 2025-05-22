@@ -834,7 +834,6 @@ formula =  kss ~ DPG + Number + Block + (1 |record_id), #+ D1_TAT1k  + mctq_sc4_
 
 
 
-
 summary(KSS_DPG)
 
 ```
