@@ -3,7 +3,7 @@ Code and data for the Lazar et al 2025 manuscript.
 
 # Licensing
 
-This repository contains the datasets and analysis code of the manuscript "Afternoon to early evening bright light exposure reduces later melatonin production in adolescents". The datasets are licensed under CC BY-NC 4.0, while all R code is licensed under MIT.
+This repository contains the datasets and analysis code of the manuscript "Afternoon to early evening bright light exposure reduces later melatonin production in adolescents" (DOI: [10.1038/s44323-025-00040-6](https://doi.org/10.1038/s44323-025-00040-6)). The datasets are licensed under the CC BY-NC  4.0 license and further archived on figshare (DOI: [10.6084/m9.figshare.27063514](https://doi.org/10.6084/m9.figshare.27063514)). All R code in this repository is subject to the MIT license.
 
 
 ## Light dataset names
